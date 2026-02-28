@@ -2,9 +2,7 @@ import os
 import shutil
 import mobase
 
-from enum import IntEnum, auto
 from pathlib import Path
-from typing import Any, List, Set, cast
 
 from ..basic_game import BasicGame
 
@@ -54,7 +52,7 @@ class RoadToVostokGame(BasicGame):
     GameBinary = "Road_to_Vostok_Demo.exe"
     GameDataPath = "%GAME_PATH%"
     GameModsPath = "mods"
-    GameDocumentsDirectory = '%APPDATA%/Godot/app_userdata/Road to Vostok'
+    GameDocumentsDirectory = "%APPDATA%/Godot/app_userdata/Road to Vostok"
     GameSaveExtension = "tres"
 
     def init(self, organizer: mobase.IOrganizer) -> bool:

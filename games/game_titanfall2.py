@@ -3,10 +3,8 @@ import shutil
 import json
 import mobase
 
-from json import JSONDecodeError
 from enum import IntEnum, auto
 from pathlib import Path
-from typing import Any, List, Set, cast
 from functools import cached_property
 
 from ..basic_game import BasicGame
@@ -218,7 +216,7 @@ class Titanfall2Game(BasicGame):
                             if value == 35 and modname not in Northstar:
                                 Northstar[modname] = {modversion: True}
                             if value == 33 and modname in Northstar:
-                                removed_value = Northstar.pop(modname)
+                                Northstar = Northstar.pop(modname)
                             with open(Northstar_Config_Json, "w", encoding="utf-8") as f:
                                 json.dump(Northstar, f, ensure_ascii=False, indent=4)
 

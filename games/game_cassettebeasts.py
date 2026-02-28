@@ -2,9 +2,7 @@ import os
 import shutil
 import mobase
 
-from enum import IntEnum, auto
 from pathlib import Path
-from typing import Any, List, Set, cast
 from functools import cached_property
 
 from ..basic_game import BasicGame
@@ -51,7 +49,7 @@ class CassetteBeastsModDataChecker(mobase.ModDataChecker):
 
 
 class CassetteBeastsGame(BasicGame):
-    appdataenv = os.getenv('APPDATA')
+    appdataenv = os.getenv("APPDATA")
 
     Name = "Cassette Beasts Support Plugin"
     Author = "modworkshop"
@@ -60,8 +58,8 @@ class CassetteBeastsGame(BasicGame):
     GameShortName = "cassette-beasts"
     GameSteamId = 1321440
     GameBinary = "CassetteBeasts.exe"
-    GameDataPath = appdataenv + '/CassetteBeasts/mods'
-    GameDocumentsDirectory = appdataenv + '/CassetteBeasts'
+    GameDataPath = appdataenv + "/CassetteBeasts/mods"
+    GameDocumentsDirectory = appdataenv + "/CassetteBeasts"
     GameSaveExtension = "gcpf"
 
     def init(self, organizer: mobase.IOrganizer) -> bool:

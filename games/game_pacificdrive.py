@@ -31,7 +31,7 @@ class Content(IntEnum):
     BK2 = auto()
 
 
-class SilentHill2ModDataContent(mobase.ModDataContent):
+class PacificDriveModDataContent(mobase.ModDataContent):
     contents: list[int] = []
     GAMECONTENTS: list[tuple[Content, str, str, bool] | tuple[Content, str, str]] = [
         (Content.UCAS, "UCAS", ":/MO/gui/content/geometries"),
@@ -70,7 +70,7 @@ class SilentHill2ModDataContent(mobase.ModDataContent):
         return list(self.contents)
 
 
-class SilentHill2ModDataChecker(mobase.ModDataChecker):
+class PacificDriveModDataChecker(mobase.ModDataChecker):
     def __init__(self, organizer: mobase.IOrganizer):
         super().__init__()
         self.organizer: mobase.IOrganizer = organizer
@@ -174,20 +174,20 @@ class SilentHill2ModDataChecker(mobase.ModDataChecker):
         return filetree
 
 
-class SilentHill2Game(BasicGame):
-    Name = "Silent Hill 2 Support Plugin"
+class PacificDriveGame(BasicGame):
+    Name = "Pacific Drive Support Plugin"
     Author = "modworkshop"
     Version = "1"
-    GameName = "Silent Hill 2 Remake"
-    GameLauncher = "SHProto.exe"
-    GameShortName = "silenthill-2"
-    GameSteamId = 2124490
-    GameBinary = "SHProto/Binaries/Win64/SHProto-Win64-Shipping.exe"
-    GameDataPath = "SHProto"
+    GameName = "Pacific Drive"
+    GameLauncher = "PenDriverPro.exe"
+    GameShortName = "pacificdrive"
+    GameSteamId = 1458140
+    GameBinary = "PenDriverPro/Binaries/Win64/PenDriverPro-Win64-Shipping.exe"
+    GameDataPath = "PenDriverPro"
     GameDataUE4SSMods = "Binaries/Win64/Mods"
     GameDataPakMods = "Content/Paks/~Mods"
     GameDataMovieMods = "Content/Movies"
-    GameDocumentsDirectory = "%LOCALAPPDATA%/SilentHill2/Saved/Config/Windows"
+    GameDocumentsDirectory = "%LOCALAPPDATA%/PenDriverPro/Saved/Config/WindowsNoEditor"
     GameSaveExtension = "sav"
     _main_window: QMainWindow
     _ue4ss_tab: UE4SSTabWidget
@@ -195,9 +195,9 @@ class SilentHill2Game(BasicGame):
 
     def init(self, organizer: mobase.IOrganizer) -> bool:
         super().init(organizer)
-        self.dataChecker = SilentHill2ModDataChecker(organizer)
+        self.dataChecker = PacificDriveModDataChecker(organizer)
         self._register_feature(self.dataChecker)
-        self._register_feature(SilentHill2ModDataContent())
+        self._register_feature(PacificDriveModDataContent())
         organizer.onUserInterfaceInitialized(self.init_tab)
         return True
 
@@ -221,7 +221,7 @@ class SilentHill2Game(BasicGame):
     def executables(self):
         return [
             mobase.ExecutableInfo(
-                "Silent Hill 2",
+                "Pacific Drive",
                 QFileInfo(self.gameDirectory().absoluteFilePath(self.binaryName())),
             )
         ]

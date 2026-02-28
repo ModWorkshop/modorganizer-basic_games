@@ -9,12 +9,8 @@ from ..constants import DEFAULT_UE4SS_MODS, UE4SSModInfo
 from .model import UE4SSListModel
 from .view import UE4SSView
 
-try:
-    from PyQt6.QtWidgets import QGridLayout, QWidget
-    from PyQt6.QtCore import QDir, QFileInfo, Qt
-except:
-    from PyQt5.QtWidgets import QGridLayout, QWidget
-    from PyQt5.QtCore import QDir, QFileInfo, Qt
+from PyQt6.QtWidgets import QGridLayout, QWidget
+from PyQt6.QtCore import QDir, QFileInfo, Qt
 
 class UE4SSTabWidget(QWidget):
     def __init__(self, parent: QWidget | None, organizer: mobase.IOrganizer):

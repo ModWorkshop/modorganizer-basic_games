@@ -1,13 +1,8 @@
 from typing import Iterable
 
-try:
-    from PyQt6.QtCore import QModelIndex, Qt, pyqtSignal
-    from PyQt6.QtGui import QDropEvent
-    from PyQt6.QtWidgets import QAbstractItemView, QListView, QWidget
-except:
-    from PyQt5.QtCore import QModelIndex, Qt, pyqtSignal
-    from PyQt5.QtGui import QDropEvent
-    from PyQt5.QtWidgets import QAbstractItemView, QListView, QWidget
+from PyQt6.QtCore import QModelIndex, Qt, pyqtSignal
+from PyQt6.QtGui import QDropEvent
+from PyQt6.QtWidgets import QAbstractItemView, QListView, QWidget
 
 
 class UE4SSView(QListView):

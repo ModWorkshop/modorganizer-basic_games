@@ -5,12 +5,8 @@ from typing import Any, TypeAlias, overload
 
 import mobase
 
-try:
-    from PyQt6.QtCore import (QAbstractItemModel, QByteArray, QDataStream, QDir, QFileInfo, QMimeData, QModelIndex, QObject, Qt, QVariant)
-    from PyQt6.QtWidgets import QWidget
-except:
-    from PyQt5.QtCore import (QAbstractItemModel, QByteArray, QDataStream, QDir, QFileInfo, QMimeData, QModelIndex, QObject, Qt, QVariant)
-    from PyQt5.QtWidgets import QWidget
+from PyQt6.QtCore import (QAbstractItemModel, QByteArray, QDataStream, QDir, QFileInfo, QMimeData, QModelIndex, QObject, Qt, QVariant)
+from PyQt6.QtWidgets import QWidget
 
 _PakInfo: TypeAlias = tuple[str, str, str, str]
 
@@ -61,12 +57,16 @@ class PaksModel(QAbstractItemModel):
             | Qt.ItemFlag.ItemIsDropEnabled & Qt.ItemFlag.ItemIsEditable
         )
 
-    def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:
+    def columnCount(self, parent: QModelIndex) -> int:
+        if parent is None:
+            parent = QModelIndex()
         return len(PaksColumns)
 
     def index(
-        self, row: int, column: int, parent: QModelIndex = QModelIndex()
+        self, row: int, column: int, parent: QModelIndex
     ) -> QModelIndex:
+        if parent is None:
+            parent = QModelIndex()
         if (
             row < 0
             or row >= self.rowCount()
@@ -86,7 +86,9 @@ class PaksModel(QAbstractItemModel):
             return super().parent()
         return QModelIndex()
 
-    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
+    def rowCount(self, parent: QModelIndex) -> int:
+        if parent is None:
+            parent = QModelIndex()
         return len(self.paks)
 
     def setData(

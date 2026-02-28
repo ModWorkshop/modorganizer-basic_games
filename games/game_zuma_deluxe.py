@@ -11,10 +11,7 @@ from functools import cached_property
 from ..basic_game import BasicGame
 from ..basic_features import BasicGameSaveGameInfo
 
-try:
-    from PyQt6.QtCore import QDir, QFileInfo
-except:
-    from PyQt5.QtCore import QDir, QFileInfo
+from PyQt6.QtCore import QDir, QFileInfo
 
 
 class Content(IntEnum):

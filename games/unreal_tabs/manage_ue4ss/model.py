@@ -2,12 +2,9 @@ import json
 from json import JSONDecodeError
 from typing import Any, Iterable
 
-try:
-    from PyQt6.QtCore import (QDir, QFileInfo, QMimeData, QModelIndex, QStringListModel, Qt)
-    from PyQt6.QtWidgets import QWidget
-except:
-    from PyQt5.QtCore import (QDir, QFileInfo, QMimeData, QModelIndex, QStringListModel, Qt)
-    from PyQt5.QtWidgets import QWidget
+from PyQt6.QtCore import (QDir, QFileInfo, QMimeData, QModelIndex, QStringListModel, Qt)
+from PyQt6.QtWidgets import QWidget
+
 
 import mobase
 

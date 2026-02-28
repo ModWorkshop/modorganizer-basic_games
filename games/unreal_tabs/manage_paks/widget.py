@@ -8,12 +8,9 @@ from ....basic_features.utils import is_directory
 from .model import PaksModel
 from .view import PaksView
 
-try:
-    from PyQt6.QtWidgets import QGridLayout, QWidget
-    from PyQt6.QtCore import QDir, QFileInfo, Qt
-except:
-    from PyQt5.QtWidgets import QGridLayout, QWidget
-    from PyQt5.QtCore import QDir, QFileInfo, Qt
+
+from PyQt6.QtWidgets import QGridLayout, QWidget
+from PyQt6.QtCore import QDir, QFileInfo, Qt
 
 def pak_sort(a: tuple[str, str], b: tuple[str, str]) -> int:
     a_pak, a_str = a[0], a[1] or a[0]

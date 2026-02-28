@@ -14,12 +14,9 @@ from .unreal_tabs.manage_ue4ss.widget import UE4SSTabWidget
 
 from ..basic_game import BasicGame
 
-try:
-    from PyQt6.QtWidgets import QMainWindow, QTabWidget, QWidget
-    from PyQt6.QtCore import QDir, QFileInfo
-except:
-    from PyQt5.QtWidgets import QMainWindow, QTabWidget, QWidget
-    from PyQt5.QtCore import QDir, QFileInfo
+from PyQt6.QtWidgets import QMainWindow, QTabWidget, QWidget
+from PyQt6.QtCore import QDir, QFileInfo
+
 
 
 class Content(IntEnum):

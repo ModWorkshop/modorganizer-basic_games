@@ -11,10 +11,7 @@ from functools import cached_property
 
 from ..basic_game import BasicGame
 
-try:
-    from PyQt6.QtCore import QDir, QFileInfo
-except:
-    from PyQt5.QtCore import QDir, QFileInfo
+from PyQt6.QtCore import QDir, QFileInfo
 
 
 class Hitman3ModDataChecker(mobase.ModDataChecker):
@@ -117,7 +114,6 @@ class Hitman3Game(BasicGame):
         return True
 
     def update_smm_meta(self, mods: dict[str, mobase.ModState]):
-        GameSMMPath = self._organizer.managedGame().GameSMMPath
         SMM_Path = os.path.join(self.dataDirectory().absolutePath(), self.GameSMMPath)
         SMM_Config_Json = SMM_Path + "/config.json"
         for key, value in mods.items():

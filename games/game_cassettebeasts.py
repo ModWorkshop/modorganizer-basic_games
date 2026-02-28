@@ -9,10 +9,7 @@ from functools import cached_property
 
 from ..basic_game import BasicGame
 
-try:
-    from PyQt6.QtCore import QDir, QFileInfo
-except:
-    from PyQt5.QtCore import QDir, QFileInfo
+from PyQt6.QtCore import QDir, QFileInfo
 
 
 class CassetteBeastsModDataChecker(mobase.ModDataChecker):
@@ -55,7 +52,7 @@ class CassetteBeastsModDataChecker(mobase.ModDataChecker):
 
 class CassetteBeastsGame(BasicGame):
     appdataenv = os.getenv('APPDATA')
-    
+
     Name = "Cassette Beasts Support Plugin"
     Author = "modworkshop"
     Version = "1"
@@ -115,4 +112,3 @@ class CassetteBeastsGame(BasicGame):
         if not os.path.exists(modsPath):
             os.mkdir(modsPath)
         super().initializeProfile(directory, settings)
-        

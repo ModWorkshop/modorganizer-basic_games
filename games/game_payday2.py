@@ -9,10 +9,7 @@ from functools import cached_property
 
 from ..basic_game import BasicGame
 
-try:
-    from PyQt6.QtCore import QDir, QFileInfo
-except:
-    from PyQt5.QtCore import QDir, QFileInfo
+from PyQt6.QtCore import QDir, QFileInfo
 
 
 class Content(IntEnum):
@@ -145,7 +142,7 @@ class Payday2ModDataChecker(mobase.ModDataChecker):
 
     def fix(self, filetree: mobase.IFileTree) -> mobase.IFileTree:
         treefixed = 0
-        
+
         if filetree.exists("mod.txt", mobase.IFileTree.FILE):
             treefixed = self.allMoveTo(filetree, "mods/FOLDERNAME/")
             if treefixed == 1:
@@ -233,9 +230,9 @@ class Payday2Game(BasicGame):
     def dll_copy(
         self, mods: dict[str, mobase.ModState]
     ):
-        
+
         game_path = self.dataDirectory().absolutePath() + "/"
-        
+
         for key, value in mods.items():
             key = self._organizer.modList().getMod(key)
             tree = key.fileTree()

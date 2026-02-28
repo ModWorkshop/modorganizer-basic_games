@@ -8,11 +8,7 @@ from typing import Any, List, Set, cast
 
 from ..basic_game import BasicGame
 
-try:
-    from PyQt6.QtCore import QDir, QFileInfo
-except:
-    from PyQt5.QtCore import QDir, QFileInfo
-
+from PyQt6.QtCore import QDir, QFileInfo
 
 class RoadToVostokModDataChecker(mobase.ModDataChecker):
     def __init__(self, organizer: mobase.IOrganizer):
@@ -20,7 +16,7 @@ class RoadToVostokModDataChecker(mobase.ModDataChecker):
         self.organizer: mobase.IOrganizer = organizer
 
     def dataLooksValid(self, filetree: mobase.IFileTree) -> mobase.ModDataChecker.CheckReturn:
-            
+
         if filetree.exists("mods", mobase.IFileTree.DIRECTORY) and not filetree.exists("mod.txt", mobase.IFileTree.FILE):
             return mobase.ModDataChecker.VALID
         for e in filetree:
@@ -31,7 +27,7 @@ class RoadToVostokModDataChecker(mobase.ModDataChecker):
     def fix(self, filetree: mobase.IFileTree) -> mobase.IFileTree:
         GameModsPath = self.organizer.managedGame().GameModsPath + "/"
         treefixed = 0
-        
+
         for branch in filetree:
             mod_name = filetree.name()
             if mod_name == "":
@@ -41,14 +37,14 @@ class RoadToVostokModDataChecker(mobase.ModDataChecker):
                 os.makedirs(os.path.join(mod_path, GameModsPath), exist_ok=True)
                 shutil.move(os.path.join(mod_path, branch.name()), os.path.join(mod_path, GameModsPath, branch.name()))
                 treefixed = 1
-                
+
         if treefixed == 0:
             return None
         return filetree
 
 
 class RoadToVostokGame(BasicGame):
-    
+
     Name = "Road to Vostok Support Plugin"
     Author = "modworkshop"
     Version = "1"

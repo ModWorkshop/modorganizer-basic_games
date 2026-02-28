@@ -14,12 +14,8 @@ from .unreal_tabs.manage_ue4ss.widget import UE4SSTabWidget
 
 from ..basic_game import BasicGame
 
-try:
-    from PyQt6.QtWidgets import QMainWindow, QTabWidget, QWidget
-    from PyQt6.QtCore import QDir, QFileInfo
-except:
-    from PyQt5.QtWidgets import QMainWindow, QTabWidget, QWidget
-    from PyQt5.QtCore import QDir, QFileInfo
+from PyQt6.QtWidgets import QMainWindow, QTabWidget, QWidget
+from PyQt6.QtCore import QDir, QFileInfo
 
 
 class Content(IntEnum):
@@ -142,6 +138,7 @@ class CrimeBossModDataChecker(mobase.ModDataChecker):
         GameDataUE4SSMods = self.organizer.managedGame().GameDataUE4SSMods + "/"
         GameDataPakMods = self.organizer.managedGame().GameDataPakMods + "/"
         GameDataNativeMods = self.organizer.managedGame().GameDataNativeMods + "/"
+        GameDataMovies = self.organizer.managedGame().GameDataMovies + "/"
         treefixed = 0
         if filetree.exists("UE4SS.dll", mobase.IFileTree.FILE):
             treefixed = self.allMoveTo(filetree, os.path.dirname(os.path.dirname(GameDataUE4SSMods)) + "/")

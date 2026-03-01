@@ -57,13 +57,13 @@ class PaksModel(QAbstractItemModel):
             | Qt.ItemFlag.ItemIsDropEnabled & Qt.ItemFlag.ItemIsEditable
         )
 
-    def columnCount(self, parent: QModelIndex) -> int:
+    def columnCount(self, parent: QModelIndex = None) -> int:
         if parent is None:
             parent = QModelIndex()
         return len(PaksColumns)
 
     def index(
-        self, row: int, column: int, parent: QModelIndex
+        self, row: int, column: int, parent: QModelIndex = None
     ) -> QModelIndex:
         if parent is None:
             parent = QModelIndex()
@@ -86,7 +86,7 @@ class PaksModel(QAbstractItemModel):
             return super().parent()
         return QModelIndex()
 
-    def rowCount(self, parent: QModelIndex) -> int:
+    def rowCount(self, parent: QModelIndex = None) -> int:
         if parent is None:
             parent = QModelIndex()
         return len(self.paks)

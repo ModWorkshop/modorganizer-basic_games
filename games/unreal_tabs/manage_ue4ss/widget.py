@@ -1,16 +1,16 @@
-import json
 from functools import cmp_to_key
+import json
 from json import JSONDecodeError
 from pathlib import Path
 
 import mobase
+from PyQt6.QtCore import QDir, QFileInfo, Qt
+from PyQt6.QtWidgets import QGridLayout, QWidget
 
 from ..constants import DEFAULT_UE4SS_MODS, UE4SSModInfo
 from .model import UE4SSListModel
 from .view import UE4SSView
 
-from PyQt6.QtWidgets import QGridLayout, QWidget
-from PyQt6.QtCore import QDir, QFileInfo, Qt
 
 class UE4SSTabWidget(QWidget):
     def __init__(self, parent: QWidget | None, organizer: mobase.IOrganizer):
@@ -80,7 +80,9 @@ class UE4SSTabWidget(QWidget):
                 if isinstance(ue4ss_files, mobase.IFileTree):
                     for entry in ue4ss_files:
                         if isinstance(entry, mobase.IFileTree):
-                            if entry.find("scripts/main.lua") or entry.find("dlls/main.dll"):
+                            if entry.find("scripts/main.lua") or entry.find(
+                                "dlls/main.dll"
+                            ):
                                 mod_list.add(entry.name())
                             if enabled_txt := entry.find("enabled.txt"):
                                 try:
@@ -107,9 +109,7 @@ class UE4SSTabWidget(QWidget):
                 ).exists():
                     mod_list.add(dir_info.fileName())
                 if QFileInfo(
-                    QDir(dir_info.absoluteFilePath()).absoluteFilePath(
-                        "enabled.txt"
-                    )
+                    QDir(dir_info.absoluteFilePath()).absoluteFilePath("enabled.txt")
                 ).exists():
                     Path(dir_info.absoluteFilePath(), "enabled.txt").unlink()
 

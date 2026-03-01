@@ -1,6 +1,6 @@
+from enum import IntEnum, auto
 import itertools
 import typing
-from enum import IntEnum, auto
 from typing import Any, TypeAlias, overload
 
 import mobase

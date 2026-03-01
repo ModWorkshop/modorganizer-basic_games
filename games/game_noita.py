@@ -1,15 +1,12 @@
+from functools import cached_property
+from pathlib import Path
 import os
 import shutil
-import json
-import mobase
 
-from json import JSONDecodeError
-from pathlib import Path
-from functools import cached_property
+import mobase
+from PyQt6.QtCore import QDir, QFileInfo
 
 from ..basic_game import BasicGame
-
-from PyQt6.QtCore import QDir, QFileInfo
 
 
 class NoitaModDataChecker(mobase.ModDataChecker):
@@ -39,7 +36,9 @@ class NoitaModDataChecker(mobase.ModDataChecker):
         filetree: mobase.IFileTree = mod.fileTree()
         fixed = False
         modname = mod.name()
-        if filetree is not None and filetree.exists(GameModsPath + "/FOLDERNAME", mobase.IFileTree.DIRECTORY):
+        if filetree is not None and filetree.exists(
+            GameModsPath + "/FOLDERNAME", mobase.IFileTree.DIRECTORY
+        ):
             path = mod.absolutePath()
             old_path = os.path.join(path, GameModsPath + "/FOLDERNAME")
             new_path = os.path.join(path, GameModsPath + f"/{modname}")
@@ -49,7 +48,9 @@ class NoitaModDataChecker(mobase.ModDataChecker):
             return
         self.needsNameFix = False
 
-    def dataLooksValid(self, filetree: mobase.IFileTree) -> mobase.ModDataChecker.CheckReturn:
+    def dataLooksValid(
+        self, filetree: mobase.IFileTree
+    ) -> mobase.ModDataChecker.CheckReturn:
         if filetree.exists("mods", mobase.IFileTree.DIRECTORY):
             return mobase.ModDataChecker.VALID
         return mobase.ModDataChecker.FIXABLE
@@ -131,7 +132,9 @@ class NoitaGame(BasicGame):
         except AttributeError:
             efls = []
         libs: set[str] = set()
-        tree: mobase.IFileTree | mobase.FileTreeEntry | None = self._organizer.virtualFileTree()
+        tree: mobase.IFileTree | mobase.FileTreeEntry | None = (
+            self._organizer.virtualFileTree()
+        )
         if type(tree) is not mobase.IFileTree:
             return efls
         for e in tree:
@@ -139,7 +142,13 @@ class NoitaGame(BasicGame):
             if relpath and e.hasSuffix("dll") and relpath not in self._base_dlls:
                 libs.add(relpath)
         exes = self.executables()
-        efls = efls + [mobase.ExecutableForcedLoadSetting(exe.binary().fileName(), lib).withEnabled(True) for lib in libs for exe in exes]
+        efls = efls + [
+            mobase.ExecutableForcedLoadSetting(
+                exe.binary().fileName(), lib
+            ).withEnabled(True)
+            for lib in libs
+            for exe in exes
+        ]
         return efls
 
     def initializeProfile(self, directory: QDir, settings: mobase.ProfileSetting):

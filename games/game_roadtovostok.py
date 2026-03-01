@@ -1,12 +1,10 @@
 import os
 import shutil
-import mobase
 
-from pathlib import Path
+import mobase
+from PyQt6.QtCore import QDir, QFileInfo
 
 from ..basic_game import BasicGame
-
-from PyQt6.QtCore import QDir, QFileInfo
 
 class RoadToVostokModDataChecker(mobase.ModDataChecker):
     def __init__(self, organizer: mobase.IOrganizer):

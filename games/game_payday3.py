@@ -38,7 +38,10 @@ class Payday3ModDataContent(mobase.ModDataContent):
     ]
 
     def getAllContents(self) -> list[mobase.ModDataContent.Content]:
-        return [mobase.ModDataContent.Content(id, name, icon, *filter_only) for id, name, icon, *filter_only in self.GAMECONTENTS]
+        return [
+            mobase.ModDataContent.Content(id, name, icon, *filter_only)
+            for id, name, icon, *filter_only in self.GAMECONTENTS
+        ]
 
     def walkContent(self, path: str, entry: mobase.FileTreeEntry):
         if entry.isFile():
@@ -83,7 +86,9 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
             self.move_overwrite_merge(s_item, d_item)
         os.rmdir(source)
 
-    def dataLooksValid(self, filetree: mobase.IFileTree) -> mobase.ModDataChecker.CheckReturn:
+    def dataLooksValid(
+        self, filetree: mobase.IFileTree
+    ) -> mobase.ModDataChecker.CheckReturn:
         GameDataUE4SSMods = self.organizer.managedGame().GameDataUE4SSMods
         GameDataPakMods = self.organizer.managedGame().GameDataPakMods
         GameDataMovies = self.organizer.managedGame().GameDataMovieMods
@@ -120,10 +125,14 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
         GameDataMovies = self.organizer.managedGame().GameDataMovieMods + "/"
         treefixed = 0
         if filetree.exists("UE4SS.dll", mobase.IFileTree.FILE):
-            treefixed = self.allMoveTo(filetree, os.path.dirname(os.path.dirname(GameDataUE4SSMods)) + "/")
+            treefixed = self.allMoveTo(
+                filetree, os.path.dirname(os.path.dirname(GameDataUE4SSMods)) + "/"
+            )
             if treefixed == 1:
                 return filetree
-        if filetree.exists("Scripts", mobase.IFileTree.DIRECTORY) or filetree.exists("dlls", mobase.IFileTree.DIRECTORY):
+        if filetree.exists("Scripts", mobase.IFileTree.DIRECTORY) or filetree.exists(
+            "dlls", mobase.IFileTree.DIRECTORY
+        ):
             treefixed = self.allMoveTo(filetree, GameDataUE4SSMods)
             if treefixed == 1:
                 return filetree
@@ -139,14 +148,32 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
                             if mod_name == "":
                                 mod_name = e.name()
                             mod_path = os.path.join(self.organizer.modsPath(), mod_name)
-                            if filetree.createOrphanTree("OrphanTree") is None and os.path.exists(mod_path):
+                            if filetree.createOrphanTree(
+                                "OrphanTree"
+                            ) is None and os.path.exists(mod_path):
                                 match e.suffix().casefold():
                                     case "pak" | "utoc" | "ucas":
-                                        os.makedirs(os.path.join(mod_path, GameDataPakMods), exist_ok=True)
-                                        shutil.move(os.path.join(mod_path, e.name()), os.path.join(mod_path, GameDataPakMods, e.name()))
+                                        os.makedirs(
+                                            os.path.join(mod_path, GameDataPakMods),
+                                            exist_ok=True,
+                                        )
+                                        shutil.move(
+                                            os.path.join(mod_path, e.name()),
+                                            os.path.join(
+                                                mod_path, GameDataPakMods, e.name()
+                                            ),
+                                        )
                                     case "bk2":
-                                        os.makedirs(os.path.join(mod_path, GameDataMovies), exist_ok=True)
-                                        shutil.move(os.path.join(mod_path, e.name()), os.path.join(mod_path, GameDataMovies, e.name()))
+                                        os.makedirs(
+                                            os.path.join(mod_path, GameDataMovies),
+                                            exist_ok=True,
+                                        )
+                                        shutil.move(
+                                            os.path.join(mod_path, e.name()),
+                                            os.path.join(
+                                                mod_path, GameDataMovies, e.name()
+                                            ),
+                                        )
                                     case _:
                                         pass
                                 treefixed = 1
@@ -158,7 +185,11 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
                         case "pak" | "utoc" | "ucas":
                             filetree.move(e, GameDataPakMods, mobase.IFileTree.MERGE)
                         case "dll":
-                            filetree.move(e, os.path.dirname(GameDataUE4SSMods) + "/", mobase.IFileTree.MERGE)
+                            filetree.move(
+                                e,
+                                os.path.dirname(GameDataUE4SSMods) + "/",
+                                mobase.IFileTree.MERGE,
+                            )
                         case "bk2":
                             filetree.move(e, GameDataMovies, mobase.IFileTree.MERGE)
                         case _:
@@ -231,7 +262,9 @@ class Payday3Game(BasicGame):
         except AttributeError:
             efls = []
         libs: set[str] = set()
-        tree: mobase.IFileTree | mobase.FileTreeEntry | None = self._organizer.virtualFileTree()
+        tree: mobase.IFileTree | mobase.FileTreeEntry | None = (
+            self._organizer.virtualFileTree()
+        )
         if type(tree) is not mobase.IFileTree:
             return efls
         for e in tree:
@@ -239,7 +272,13 @@ class Payday3Game(BasicGame):
             if relpath and e.hasSuffix("dll") and relpath not in self._base_dlls:
                 libs.add(relpath)
         exes = self.executables()
-        efls = efls + [mobase.ExecutableForcedLoadSetting(exe.binary().fileName(), lib).withEnabled(True) for lib in libs for exe in exes]
+        efls = efls + [
+            mobase.ExecutableForcedLoadSetting(
+                exe.binary().fileName(), lib
+            ).withEnabled(True)
+            for lib in libs
+            for exe in exes
+        ]
         return efls
 
     def paksDirectory(self) -> QDir:

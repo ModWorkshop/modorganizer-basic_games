@@ -1,22 +1,18 @@
+from enum import IntEnum, auto
+from functools import cached_property
+from pathlib import Path
 import json
 import os
 import shutil
+
 import mobase
+from PyQt6.QtCore import QDir, QFileInfo
+from PyQt6.QtWidgets import QMainWindow, QTabWidget, QWidget
 
-from enum import IntEnum, auto
-from pathlib import Path
-from typing import Any, List, Set, cast
-from functools import cached_property
-
+from ..basic_game import BasicGame
 from .unreal_tabs.constants import DEFAULT_UE4SS_MODS, UE4SSModInfo
 from .unreal_tabs.manage_paks.widget import PaksTabWidget
 from .unreal_tabs.manage_ue4ss.widget import UE4SSTabWidget
-
-from ..basic_game import BasicGame
-
-from PyQt6.QtWidgets import QMainWindow, QTabWidget, QWidget
-from PyQt6.QtCore import QDir, QFileInfo
-
 
 
 class Content(IntEnum):

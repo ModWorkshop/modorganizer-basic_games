@@ -1,15 +1,13 @@
+from enum import IntEnum, auto
+from functools import cached_property
+from pathlib import Path
 import os
 import shutil
-import json
-import mobase
 
-from enum import IntEnum, auto
-from pathlib import Path
-from functools import cached_property
+import mobase
+from PyQt6.QtCore import QDir, QFileInfo
 
 from ..basic_game import BasicGame
-
-from PyQt6.QtCore import QDir, QFileInfo
 
 
 class Content(IntEnum):
@@ -36,7 +34,10 @@ class Titanfall2ModDataContent(mobase.ModDataContent):
     ]
 
     def getAllContents(self) -> list[mobase.ModDataContent.Content]:
-        return [mobase.ModDataContent.Content(id, name, icon, *filter_only) for id, name, icon, *filter_only in self.GAMECONTENTS]
+        return [
+            mobase.ModDataContent.Content(id, name, icon, *filter_only)
+            for id, name, icon, *filter_only in self.GAMECONTENTS
+        ]
 
     contents = set()
 
@@ -95,7 +96,9 @@ class Titanfall2ModDataChecker(mobase.ModDataChecker):
         filetree: mobase.IFileTree = mod.fileTree()
         fixed = False
         modname = mod.name()
-        if filetree is not None and filetree.exists(northstarModPath + "FOLDERNAME", mobase.IFileTree.DIRECTORY):
+        if filetree is not None and filetree.exists(
+            northstarModPath + "FOLDERNAME", mobase.IFileTree.DIRECTORY
+        ):
             path = mod.absolutePath()
             json_path = os.path.join(path, northstarModPath + "FOLDERNAME/mod.json")
             mod_data = json.load(open(json_path, encoding="utf-8"))
@@ -104,7 +107,9 @@ class Titanfall2ModDataChecker(mobase.ModDataChecker):
             new_path = os.path.join(path, northstarModPath + f"{modname}")
             self.move_overwrite_merge(old_path, new_path)
             fixed = True
-        elif filetree is not None and filetree.exists(northstarModPath + "FOLDERNAME_NAME", mobase.IFileTree.DIRECTORY):
+        elif filetree is not None and filetree.exists(
+            northstarModPath + "FOLDERNAME_NAME", mobase.IFileTree.DIRECTORY
+        ):
             path = mod.absolutePath()
             old_path = os.path.join(path, northstarModPath + "FOLDERNAME_NAME")
             new_path = os.path.join(path, northstarModPath + f"{modname}")
@@ -114,7 +119,9 @@ class Titanfall2ModDataChecker(mobase.ModDataChecker):
             return
         self.needsNameFix = False
 
-    def dataLooksValid(self, filetree: mobase.IFileTree) -> mobase.ModDataChecker.CheckReturn:
+    def dataLooksValid(
+        self, filetree: mobase.IFileTree
+    ) -> mobase.ModDataChecker.CheckReturn:
         if filetree.exists("R2Northstar", mobase.IFileTree.DIRECTORY):
             return mobase.ModDataChecker.VALID
         return mobase.ModDataChecker.FIXABLE
@@ -151,7 +158,9 @@ class Titanfall2ModDataChecker(mobase.ModDataChecker):
         else:
             try:
                 if filetree[0][0].exists("mod.json", mobase.IFileTree.FILE):
-                    filetree.move(filetree[0][0], filetree[0].path("/"), mobase.IFileTree.REPLACE)
+                    filetree.move(
+                        filetree[0][0], filetree[0].path("/"), mobase.IFileTree.REPLACE
+                    )
                     filetree.move(filetree[0], northstarModPath, mobase.IFileTree.MERGE)
                     treefixed = 1
             except TypeError:
@@ -163,7 +172,11 @@ class Titanfall2ModDataChecker(mobase.ModDataChecker):
             else:
                 for e in filetree:
                     if e is not None and e.path("/").count("/") == 0:
-                        filetree.move(e, northstarModPath + "FOLDERNAME_NAME/", mobase.IFileTree.MERGE)
+                        filetree.move(
+                            e,
+                            northstarModPath + "FOLDERNAME_NAME/",
+                            mobase.IFileTree.MERGE,
+                        )
                         treefixed = 1
                         self.needsNameFix = True
         if treefixed == 0:
@@ -194,7 +207,9 @@ class Titanfall2Game(BasicGame):
         return True
 
     def update_enable_mods_json(self, mods: dict[str, mobase.ModState]):
-        Northstar_Config_Json = self._organizer.profilePath() + "/" + self.NorthstarModJson
+        Northstar_Config_Json = (
+            self._organizer.profilePath() + "/" + self.NorthstarModJson
+        )
         with open(Northstar_Config_Json, "r", encoding="utf-8") as f:
             Northstar = json.load(f)
         for key, value in mods.items():
@@ -205,7 +220,9 @@ class Titanfall2Game(BasicGame):
                 for e in subtree:
                     if e is not None and e.isDir():
                         if e.exists("mod.json", mobase.IFileTree.FILE):
-                            json_path = key.absolutePath() + "/" + e.path() + "/mod.json"
+                            json_path = (
+                                key.absolutePath() + "/" + e.path() + "/mod.json"
+                            )
                             with open(json_path, "r", encoding="utf-8") as f:
                                 mod_data = json.load(f)
                             modname = mod_data["Name"]
@@ -217,7 +234,9 @@ class Titanfall2Game(BasicGame):
                                 Northstar[modname] = {modversion: True}
                             if value == 33 and modname in Northstar:
                                 Northstar = Northstar.pop(modname)
-                            with open(Northstar_Config_Json, "w", encoding="utf-8") as f:
+                            with open(
+                                Northstar_Config_Json, "w", encoding="utf-8"
+                            ) as f:
                                 json.dump(Northstar, f, ensure_ascii=False, indent=4)
 
     def executables(self):
@@ -226,7 +245,9 @@ class Titanfall2Game(BasicGame):
                 "Titanfall 2",
                 QFileInfo(self.gameDirectory().absoluteFilePath(self.binaryName())),
             ),
-            mobase.ExecutableInfo("Northstar", QFileInfo(self.gameDirectory(), "NorthstarLauncher.exe")),
+            mobase.ExecutableInfo(
+                "Northstar", QFileInfo(self.gameDirectory(), "NorthstarLauncher.exe")
+            ),
         ]
 
     @cached_property
@@ -240,7 +261,9 @@ class Titanfall2Game(BasicGame):
         except AttributeError:
             efls = []
         libs: set[str] = set()
-        tree: mobase.IFileTree | mobase.FileTreeEntry | None = self._organizer.virtualFileTree()
+        tree: mobase.IFileTree | mobase.FileTreeEntry | None = (
+            self._organizer.virtualFileTree()
+        )
         if type(tree) is not mobase.IFileTree:
             return efls
         for e in tree:
@@ -248,7 +271,13 @@ class Titanfall2Game(BasicGame):
             if relpath and e.hasSuffix("dll") and relpath not in self._base_dlls:
                 libs.add(relpath)
         exes = self.executables()
-        efls = efls + [mobase.ExecutableForcedLoadSetting(exe.binary().fileName(), lib).withEnabled(True) for lib in libs for exe in exes]
+        efls = efls + [
+            mobase.ExecutableForcedLoadSetting(
+                exe.binary().fileName(), lib
+            ).withEnabled(True)
+            for lib in libs
+            for exe in exes
+        ]
         return efls
 
     def northstarDirectory(self) -> QDir:
@@ -259,9 +288,16 @@ class Titanfall2Game(BasicGame):
 
     def initializeProfile(self, directory: QDir, settings: mobase.ProfileSetting):
         northstar_json_path = directory.absolutePath() + "/" + self.NorthstarModJson
-        northstar_json_game_path = self.gameDirectory().absolutePath() + "/R2Northstar/" + self.NorthstarModJson
+        northstar_json_game_path = (
+            self.gameDirectory().absolutePath()
+            + "/R2Northstar/"
+            + self.NorthstarModJson
+        )
         blank_mod_json = '{"Version": 1,"Northstar.Client": {"1.31.6": true},"Northstar.CustomServers": {"1.31.6": true},"Northstar.Custom": {"1.31.6": true}}'
-        if not os.path.exists(northstar_json_path) or os.path.getsize(northstar_json_path) == 0:
+        if (
+            not os.path.exists(northstar_json_path)
+            or os.path.getsize(northstar_json_path) == 0
+        ):
             if os.path.exists(northstar_json_game_path):
                 with open(northstar_json_game_path, "r") as game_json:
                     game_json_content = game_json.read()
@@ -273,12 +309,21 @@ class Titanfall2Game(BasicGame):
                 with open(northstar_json_path, "w") as northstar_json:
                     northstar_json.write(blank_mod_json)
                     northstar_json.close()
-        modsPath = os.path.join(self.dataDirectory().absolutePath(), self.GameNorthstarPath)
+        modsPath = os.path.join(
+            self.dataDirectory().absolutePath(), self.GameNorthstarPath
+        )
         if not os.path.exists(modsPath):
             os.mkdir(modsPath)
         super().initializeProfile(directory, settings)
 
     def mappings(self) -> list[mobase.Mapping]:
         return [
-            mobase.Mapping(self._organizer.profilePath() + "/" + self.NorthstarModJson, self.gameDirectory().absolutePath() + "/R2Northstar/" + self.NorthstarModJson, False, False),
+            mobase.Mapping(
+                self._organizer.profilePath() + "/" + self.NorthstarModJson,
+                self.gameDirectory().absolutePath()
+                + "/R2Northstar/"
+                + self.NorthstarModJson,
+                False,
+                False,
+            ),
         ]

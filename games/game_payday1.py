@@ -1,15 +1,13 @@
+from enum import IntEnum, auto
+from functools import cached_property
+from pathlib import Path
 import os
 import shutil
+
 import mobase
-
-from enum import IntEnum, auto
-from pathlib import Path
-from functools import cached_property
-
-from ..basic_game import BasicGame
-
 from PyQt6.QtCore import QDir, QFileInfo
 
+from ..basic_game import BasicGame
 
 class Content(IntEnum):
     TEXTURE = auto()

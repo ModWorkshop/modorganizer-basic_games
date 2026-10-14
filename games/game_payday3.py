@@ -6,6 +6,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import TypedDict
 
+import mobase
 from PyQt6.QtCore import QDir, QFileInfo, Qt
 from PyQt6.QtWidgets import (
     QDialog,
@@ -20,8 +21,6 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-import mobase
 
 from ..basic_game import BasicGame
 from .unreal_tabs.constants import DEFAULT_UE4SS_MODS, UE4SSModInfo
@@ -39,7 +38,7 @@ class Content(IntEnum):
 
 
 class Payday3ModDataContent(mobase.ModDataContent):
-    GAMECONTENTS: list[tuple[Content, str, str, bool] | tuple[Content, str, str]] = [
+    GAMECONTENTS: list[tuple[Content, str, str, bool] | tuple[Content, str, str]] = [  # noqa: RUF012
         (Content.UCAS, "UCAS", ":/MO/gui/content/geometries"),
         (Content.UTOC, "UTOC", ":/MO/gui/content/inifile"),
         (Content.PAK, "PAK", ":/MO/gui/content/geometries"),
@@ -62,6 +61,8 @@ class Payday3ModDataContent(mobase.ModDataContent):
                 case "ucas":
                     self.contents.append(Content.UCAS)
                 case "pak":
+                    self.contents.append(Content.PAK)
+                case "uplugin":
                     self.contents.append(Content.PAK)
                 case "lua":
                     self.contents.append(Content.UE4SS)
@@ -112,6 +113,7 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
                 "utoc",
                 "ucas",
                 "bk2",
+                "uplugin",
             }:
                 return True
         return False
@@ -119,13 +121,10 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
     def dataLooksValid(
         self, filetree: mobase.IFileTree
     ) -> mobase.ModDataChecker.CheckReturn:
-        GameDataUE4SSMods = getattr(
-            self.organizer.managedGame(), "GameDataUE4SSRoot", ""
-        )
+        GameDataUE4SSMods = getattr(self.organizer.managedGame(), "GameDataUE4SSRoot", "")
         GameDataPakMods = getattr(self.organizer.managedGame(), "GameDataPakMods", "")
-        GameDataMovieMods = getattr(
-            self.organizer.managedGame(), "GameDataMovieMods", ""
-        )
+        GameDataMovieMods = getattr(self.organizer.managedGame(), "GameDataMovieMods", "")
+        GameDataPDMLModsDir = getattr(self.organizer.managedGame(), "GameDataPDMLMods", "")
 
         if self.hasLooseInstallableFiles(filetree):
             return mobase.ModDataChecker.FIXABLE
@@ -135,6 +134,8 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
         if filetree.exists(GameDataMovieMods, mobase.IFileTree.DIRECTORY):
             return mobase.ModDataChecker.VALID
         if filetree.exists(GameDataUE4SSMods, mobase.IFileTree.DIRECTORY):
+            return mobase.ModDataChecker.VALID
+        if filetree.exists(GameDataPDMLModsDir, mobase.IFileTree.DIRECTORY):
             return mobase.ModDataChecker.VALID
         return mobase.ModDataChecker.FIXABLE
 
@@ -169,7 +170,7 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
                     src = os.path.join(mod_path, mod_file)
                     dst = os.path.join(mod_path, destination, mod_file)
                     shutil.move(src, dst)
-            return None
+            return
 
     def addModDetectionCandidate(
         self,
@@ -214,19 +215,13 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
         selectButtons = QHBoxLayout()
         selectAllButton = QPushButton("Select All")
         selectNoneButton = QPushButton("Select None")
-        selectAllButton.clicked.connect(  # type: ignore
-            lambda: self.setDialogSelection(listWidget, True)
-        )
-        selectNoneButton.clicked.connect(  # type: ignore
-            lambda: self.setDialogSelection(listWidget, False)
-        )
+        selectAllButton.clicked.connect(lambda: self.setDialogSelection(listWidget, True)) # type: ignore
+        selectNoneButton.clicked.connect(lambda: self.setDialogSelection(listWidget, False)) # type: ignore
         selectButtons.addWidget(selectAllButton)
         selectButtons.addWidget(selectNoneButton)
         layout.addLayout(selectButtons)
 
-        buttonBox = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
-        )
+        buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         buttonBox.accepted.connect(lambda: dialog.accept())  # type: ignore
         buttonBox.rejected.connect(lambda: dialog.reject())  # type: ignore
         layout.addWidget(buttonBox)
@@ -261,16 +256,11 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
         category = None
         entryext = "None"
         basename = "Unknown"
-        GameDataUE4SSRootDir = getattr(
-            self.organizer.managedGame(), "GameDataUE4SSRoot", ""
-        )
+        GameDataUE4SSRootDir = getattr(self.organizer.managedGame(), "GameDataUE4SSRoot", "")
+        GameDataPakModsDir = getattr(self.organizer.managedGame(), "GameDataPakMods", "")
+        GameDataMovieModsDir = getattr(self.organizer.managedGame(), "GameDataMovieMods", "")
+        GameDataPDMLModsDir = getattr(self.organizer.managedGame(), "GameDataPDMLMods", "")
         GameDataUE4SSModsDir = GameDataUE4SSRootDir + "/Mods"
-        GameDataPakModsDir = getattr(
-            self.organizer.managedGame(), "GameDataPakMods", ""
-        )
-        GameDataMovieModsDir = getattr(
-            self.organizer.managedGame(), "GameDataMovieMods", ""
-        )
 
         if installtype == "os" and isinstance(entry, mobase.IFileTree):
             for subentry in entry:
@@ -281,13 +271,9 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
             basename = os.path.splitext(entry.name())[0]
 
         if isinstance(entry, mobase.IFileTree) and entry.isDir():
-            if entry.exists("ue4ss.dll", mobase.IFileTree.FILE) or entry.exists(
-                "dsound.dll", mobase.IFileTree.FILE
-            ):
+            if entry.exists("ue4ss.dll", mobase.IFileTree.FILE) or entry.exists("dsound.dll", mobase.IFileTree.FILE):
                 category = "Root"
-            elif entry.exists(
-                "Scripts", mobase.IFileTree.DIRECTORY
-            ) and not entry.exists("ue4ss.dll", mobase.IFileTree.FILE):
+            elif entry.exists("Scripts", mobase.IFileTree.DIRECTORY) and not entry.exists("ue4ss.dll", mobase.IFileTree.FILE):
                 disallowedFolders = {"mods"}
                 tree_path = entry.path()
                 tree_path_lower = tree_path.replace("\\", "/").casefold()
@@ -300,6 +286,8 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
                 category = "Paks"
             case "bk2":
                 category = "Movie"
+            case "uplugin":
+                category = "PDML"
             case _:
                 pass
 
@@ -325,6 +313,8 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
                         destination = GameDataPakModsDir + "/"
                     elif category == "Movie":
                         destination = GameDataMovieModsDir + "/"
+                    elif category == "PDML":
+                        destination = GameDataPDMLModsDir + "/"
                     else:
                         destination = "/"
 
@@ -412,6 +402,7 @@ class Payday3Game(BasicGame):
     GameDataPath = "PAYDAY3"
     GameDataUE4SSRoot = "Binaries/Win64"
     GameDataPakMods = "Content/Paks/~Mods"
+    GameDataPDMLMods = "Mods"
     GameDataMovieMods = "Content/Movies"
     GameDocumentsDirectory = "%LOCALAPPDATA%/PAYDAY3/Saved/Config/WindowsClient"
     GameSavesDirectory = "%LOCALAPPDATA%/PAYDAY3/Saved/SaveGames"
@@ -488,8 +479,7 @@ class Payday3Game(BasicGame):
         ue4ss_mods_json = QFileInfo(profile.absoluteFilePath("mods.json"))
         if not ue4ss_mods_txt.exists():
             with open(ue4ss_mods_txt.absoluteFilePath(), "w") as mods_txt:
-                for mod in DEFAULT_UE4SS_MODS:
-                    mods_txt.write(f"{mod['mod_name']} : 1\n")
+                mods_txt.writelines(f"{mod['mod_name']} : 1\n" for mod in DEFAULT_UE4SS_MODS)
         if not ue4ss_mods_json.exists():
             mods_data: list[UE4SSModInfo] = []
             for mod in DEFAULT_UE4SS_MODS:
@@ -508,6 +498,7 @@ class Payday3Game(BasicGame):
         paksDirectory = QDir(base_data_dir + "/" + self.GameDataPakMods)
         ue4ssDirectory = QDir(base_data_dir + "/" + self.GameDataUE4SSRoot + "/Mods")
         movieDirectory = QDir(base_data_dir + "/" + self.GameDataMovieMods)
+        PDMLDirectory = QDir(base_data_dir + "/" + self.GameDataPDMLMods)
 
         if not paksDirectory.exists():
             os.makedirs(paksDirectory.absolutePath())
@@ -515,4 +506,6 @@ class Payday3Game(BasicGame):
             os.makedirs(ue4ssDirectory.absolutePath())
         if not movieDirectory.exists():
             os.makedirs(movieDirectory.absolutePath())
+        if not movieDirectory.exists():
+            os.makedirs(PDMLDirectory.absolutePath())
         super().initializeProfile(directory, settings)

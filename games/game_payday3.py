@@ -6,7 +6,6 @@ from functools import cached_property
 from pathlib import Path
 from typing import ClassVar, TypedDict
 
-import mobase
 from PyQt6.QtCore import QDir, QFileInfo, Qt
 from PyQt6.QtWidgets import (
     QDialog,
@@ -21,6 +20,8 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+import mobase
 
 from ..basic_game import BasicGame
 from .unreal_tabs.constants import DEFAULT_UE4SS_MODS, UE4SSModInfo
@@ -38,7 +39,9 @@ class Content(IntEnum):
 
 
 class Payday3ModDataContent(mobase.ModDataContent):
-    GAMECONTENTS: ClassVar[list[tuple[Content, str, str, bool] | tuple[Content, str, str]]] = [
+    GAMECONTENTS: ClassVar[
+        list[tuple[Content, str, str, bool] | tuple[Content, str, str]]
+    ] = [
         (Content.UCAS, "UCAS", ":/MO/gui/content/geometries"),
         (Content.UTOC, "UTOC", ":/MO/gui/content/inifile"),
         (Content.PAK, "PAK", ":/MO/gui/content/geometries"),
@@ -219,7 +222,7 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
                         src,
                         dst,
                     )
-            return
+            return None
 
     def addModDetectionCandidate(
         self,
@@ -264,12 +267,12 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
         selectButtons = QHBoxLayout()
         selectAllButton = QPushButton("Select All")
         selectNoneButton = QPushButton("Select None")
-        selectAllButton.clicked.connect(
+        selectAllButton.clicked.connect(  # pyright: ignore[reportUnknownMemberType]
             lambda: self.setDialogSelection(listWidget, True)
-        )  # type: ignore
-        selectNoneButton.clicked.connect(
+        )  # pyright: ignore[reportUnknownMemberType]
+        selectNoneButton.clicked.connect(  # pyright: ignore[reportUnknownMemberType]
             lambda: self.setDialogSelection(listWidget, False)
-        )  # type: ignore
+        )  # pyright: ignore[reportUnknownMemberType]
         selectButtons.addWidget(selectAllButton)
         selectButtons.addWidget(selectNoneButton)
         layout.addLayout(selectButtons)
@@ -277,8 +280,8 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
         buttonBox = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         )
-        buttonBox.accepted.connect(lambda: dialog.accept())  # type: ignore
-        buttonBox.rejected.connect(lambda: dialog.reject())  # type: ignore
+        buttonBox.accepted.connect(lambda: dialog.accept())  # pyright: ignore[reportUnknownMemberType]
+        buttonBox.rejected.connect(lambda: dialog.reject())  # pyright: ignore[reportUnknownMemberType]
         layout.addWidget(buttonBox)
 
         if dialog.exec() != QDialog.DialogCode.Accepted:
@@ -350,22 +353,42 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
             ) and not entry.exists("ue4ss.dll", mobase.IFileTree.FILE):
                 if not {"mods"} & set(tree_path_lower.split("/")):
                     category = "UE4SS"
-            elif any(f.isFile() and f.suffix().casefold() == "uplugin" for f in entry) and not tree_path_lower.strip(
-                "/"
-            ).startswith(GameDataPDMLModsDir.casefold() + "/"):
-                category = "PDML"
+            elif any(f.isFile() and f.suffix().casefold() == "uplugin" for f in entry):
+                if not tree_path_lower.strip("/").startswith(
+                    GameDataPDMLModsDir.casefold() + "/"
+                ):
+                    category = "PDML"
 
         # Check single file for correct extentions
         if category is None:
             match entryext:
                 case "pak" | "utoc" | "ucas":
+                    source_root = entry.parent()
+                    if isinstance(source_root, mobase.IFileTree):
+                        while isinstance(
+                            parent := source_root.parent(), mobase.IFileTree
+                        ):
+                            source_root = parent
+
+                        relative_path = (
+                            entry.pathFrom(source_root).replace("\\", "/").casefold()
+                        )
+                        installed_paks = (
+                            GameDataPakModsDir.replace("\\", "/").strip("/").casefold()
+                        )
+                        if relative_path.startswith(installed_paks + "/"):
+                            return mobase.IFileTree.WalkReturn.CONTINUE
+
                     folder = entry.parent()
                     while isinstance(folder, mobase.IFileTree):
                         if folder.name().casefold() == "content":
                             uplugindir = folder.parent()
                             if not (
                                 isinstance(uplugindir, mobase.IFileTree)
-                                and any(f.isFile() and f.suffix().casefold() == "uplugin" for f in uplugindir)
+                                and any(
+                                    f.isFile() and f.suffix().casefold() == "uplugin"
+                                    for f in uplugindir
+                                )
                             ):
                                 category = "Paks"
                             break
@@ -388,11 +411,24 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
             for group_key, entries in self.category_groups.items():
                 if group_key not in self.processedBasenames:
                     self.processedBasenames.add(group_key)
+                    first_entry = entries[0]
+                    sanitized_name = self.sanitizeFolderName(first_entry.name())
                     group_category = group_key.rsplit(" ", 1)[-1]
-                    sanitized_name = self.sanitizeFolderName(
-                        next(f.name().rsplit(".", 1)[0] for f in entries[0] if f.isFile() and f.suffix().casefold() == "uplugin")
-                        if group_category == "PDML" else entries[0].name()
-                    )
+                    if group_category == "PDML" and isinstance(
+                        first_entry, mobase.IFileTree
+                    ):
+                        uplugin = next(
+                            (
+                                f
+                                for f in first_entry
+                                if f.isFile() and f.suffix().casefold() == "uplugin"
+                            ),
+                            None,
+                        )
+                        if uplugin is not None:
+                            sanitized_name = self.sanitizeFolderName(
+                                os.path.splitext(uplugin.name())[0]
+                            )
 
                     if group_category == "UE4SS":
                         destination = GameDataUE4SSModsDir + "/"
@@ -440,8 +476,10 @@ class Payday3ModDataChecker(mobase.ModDataChecker):
         return mobase.IFileTree.WalkReturn.CONTINUE
 
     def allMoveTo(self, filetree: mobase.IFileTree, toMoveTo: str):
-        entriesToMove: list[mobase.FileTreeEntry] = list(filetree)
+        entriesToMove: list[mobase.FileTreeEntry] = []
         retVal = 0
+        for e in filetree:
+            entriesToMove.append(e)
         for e in entriesToMove:
             filetree.move(e, toMoveTo, mobase.IFileTree.MERGE)
             retVal = 1
